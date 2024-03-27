@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import CityWeather from "./CityWeather";
 
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   // Function to search weather data based on the provided location
   const handleSearch = async () => {
@@ -26,13 +28,16 @@ const HomePage = () => {
   // Function to handle click on a location from search results
   const handleLocationClick = async (location) => {
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
-      );
-      console.log(response.data);
+      setSelectedLocation(location);
     } catch (error) {
       console.error("An error occurred while fetching weather data:", error);
     }
+  };
+
+  const handleBackButtonClick = () => {
+    setSelectedLocation(null);
+    setSearchQuery("");
+    setSearchResults([]);
   };
 
   // Function to handle input change in the search bar
@@ -44,7 +49,7 @@ const HomePage = () => {
           `https://api.openweathermap.org/data/2.5/find?q=${e.target.value}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
         );
         setSearchResults(response.data.list);
-        setError(null); // Clear error message on new input
+        setError(null);
       } catch (error) {
         console.error(
           "An error occurred while fetching search results:",
@@ -64,24 +69,39 @@ const HomePage = () => {
 
   return (
     <div className="HomePage">
-      <div className="icon"></div>
-      <h1>iWeather</h1>
-      <h2>Welcome to TypeWeather</h2>
-      <p>Choose a location to see the weather forecast</p>
-      <input
-        type="text"
-        placeholder="Search location..."
-        value={searchQuery}
-        onChange={handleInputChange}
-      />
-      <button onClick={handleSearch}>Search</button>
-      <ul>
-        {searchResults.map((result) => (
-          <li key={result.id} onClick={() => handleLocationClick(result.name)}>
-            {result.name} - {result.sys.country}
-          </li>
-        ))}
-      </ul>
+      {selectedLocation ? (
+        <CityWeather
+          cityName={selectedLocation.split(",")[0]}
+          countryCode={selectedLocation.split(",")[1]}
+          onBackButtonClick={handleBackButtonClick}
+        />
+      ) : (
+        <React.Fragment>
+          <div className="icon"></div>
+          <h1>iWeather</h1>
+          <h2>Welcome to TypeWeather</h2>
+          <p>Choose a location to see the weather forecast</p>
+          <input
+            type="text"
+            placeholder="Search location..."
+            value={searchQuery}
+            onChange={handleInputChange}
+          />
+          <button onClick={handleSearch}>Search</button>
+          <ul>
+            {searchResults.map((result) => (
+              <li
+                key={result.id}
+                onClick={() =>
+                  handleLocationClick(`${result.name},${result.sys.country}`)
+                }
+              >
+                {result.name} - {result.sys.country}
+              </li>
+            ))}
+          </ul>
+        </React.Fragment>
+      )}
       {weatherData && (
         <div>
           <h3>
@@ -92,7 +112,6 @@ const HomePage = () => {
         </div>
       )}
       {error && <p>{error}</p>}
-      {/* Display error message if city name is invalid */}
       {!isCityNameValid(searchQuery) &&
         searchQuery.length > 0 &&
         !searchResults.length && <p>Please enter a valid city name.</p>}
