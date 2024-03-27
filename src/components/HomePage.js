@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CityWeather from "./CityWeather";
 
@@ -8,24 +8,14 @@ const HomePage = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [savedCities, setSavedCities] = useState([]);
 
-  // Function to search weather data based on the provided location
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${searchQuery}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
-      );
-      setWeatherData(response.data);
-      setError(null);
-    } catch (error) {
-      setWeatherData(null);
-      setError(
-        "An error occurred while fetching weather data. Please enter a valid city name."
-      );
-    }
-  };
+  useEffect(() => {
+    const savedCitiesFromLocalStorage =
+      JSON.parse(localStorage.getItem("savedLocations")) || [];
+    setSavedCities(savedCitiesFromLocalStorage);
+  }, [selectedLocation]); // added selectedLocation to the dependency array
 
-  // Function to handle click on a location from search results
   const handleLocationClick = async (location) => {
     try {
       setSelectedLocation(location);
@@ -38,9 +28,9 @@ const HomePage = () => {
     setSelectedLocation(null);
     setSearchQuery("");
     setSearchResults([]);
+    setSavedCities(JSON.parse(localStorage.getItem("savedLocations")) || []); // Get again cities from local storage
   };
 
-  // Function to handle input change in the search bar
   const handleInputChange = async (e) => {
     setSearchQuery(e.target.value);
     if (e.target.value.length >= 3) {
@@ -61,7 +51,6 @@ const HomePage = () => {
     }
   };
 
-  // Function to check if the city name is valid
   const isCityNameValid = (name) => {
     const words = name.split(" ");
     return words.every((word) => /^[A-ZİŞĞÜÇÖ][a-zışğüçö]+$/.test(word));
@@ -87,8 +76,21 @@ const HomePage = () => {
             value={searchQuery}
             onChange={handleInputChange}
           />
-          <button onClick={handleSearch}>Search</button>
+
           <ul>
+            {savedCities.map((city) => {
+              const [cityName, countryCode, temperature, description] =
+                city.split(",");
+              return (
+                <li key={city} onClick={() => handleLocationClick(city)}>
+                  {cityName}, {countryCode} - {parseInt(temperature)}°C{" "}
+                  {description}
+                </li>
+              );
+            })}
+          </ul>
+
+          <ul style={{ zIndex: searchResults.length > 0 ? -1 : 1 }}>
             {searchResults.map((result) => (
               <li
                 key={result.id}
