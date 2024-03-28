@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
-import { WeatherSvg } from "weather-icons-animated";
 
 const HomePage = () => {
   const {
@@ -25,6 +24,8 @@ const HomePage = () => {
     removeCity,
     fetchWeatherDataByCoordinates,
   } = useWeather();
+
+  const { getWeatherAnimation } = useWeather();
 
   useEffect(() => {
     const savedCitiesFromLocalStorage =
@@ -93,7 +94,8 @@ const HomePage = () => {
               </h3>
               <p>
                 {parseInt(weatherData.main.temp)} °C{" "}
-                {weatherData.weather[0].description}
+                {/* {weatherData.weather[0].description} */}
+                {getWeatherAnimation(weatherData.weather[0].description)}
               </p>
             </div>
           )}
@@ -116,7 +118,7 @@ const HomePage = () => {
                     style={{ cursor: "pointer" }}
                   >
                     {cityName}, {countryCode} {parseInt(temperature)}°C{" "}
-                    {description}
+                    {getWeatherAnimation(description)}
                   </span>{" "}
                   <button onClick={() => removeCity(city)}>❌</button>
                 </li>

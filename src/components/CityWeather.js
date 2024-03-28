@@ -56,6 +56,42 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
     return <p>Loading...</p>;
   }
 
+  // Calculate 5-day weather forecast by averaging each day
+  const dailyForecasts = forecastWeather.list.reduce((acc, forecast) => {
+    const date = forecast.dt_txt.split(" ")[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(forecast);
+    return acc;
+  }, {});
+
+  // Calculate average temperature and weather for each day
+  const averageDailyForecasts = Object.values(dailyForecasts).map(
+    (forecasts) => {
+      const avgTemperature =
+        forecasts.reduce((sum, forecast) => sum + forecast.main.temp, 0) /
+        forecasts.length;
+      const mainWeather = forecasts[0].weather[0].main;
+      const description = forecasts[0].weather[0].description;
+      return {
+        main: { temp: avgTemperature },
+        weather: [{ main: mainWeather, description }],
+      };
+    }
+  );
+
+  // Array to map day indexes to day names
+  const dayNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
   return (
     <div>
       <div>
@@ -67,20 +103,22 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
       </h2>
       <div>
         <h3>Current Weather</h3>
-        <p>Temperature: {currentWeather.main.temp} °C</p>
-        <p>Description: {currentWeather.weather[0].description}</p>
+        <p> {parseInt(currentWeather.main.temp)} °C</p>
         {getWeatherAnimation(currentWeather.weather[0].description)}
       </div>
       <div>
         <h3>5-Day Forecast</h3>
-        {forecastWeather.list.slice(0, 5).map((forecast, index) => (
-          <div key={index}>
-            <p>Date: {forecast.dt_txt}</p>
-            <p>Temperature: {forecast.main.temp} °C</p>
-            <p>Description: {forecast.weather[0].description}</p>
-            {getWeatherAnimation(forecast.weather[0].description)}
-          </div>
-        ))}
+        {averageDailyForecasts.map((forecast, index) => {
+          const date = Object.keys(dailyForecasts)[index];
+          const dayName = new Date(date).getDay(); // Get day index
+          return (
+            <div key={index}>
+              <p>{dayNames[dayName]}</p>
+              <p> {parseInt(forecast.main.temp)} °C</p>
+              {getWeatherAnimation(forecast.weather[0].description)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
