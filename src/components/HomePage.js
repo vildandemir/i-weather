@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
+import logo from "../assets/Logo.png";
 
 const HomePage = () => {
   const {
@@ -84,7 +85,7 @@ const HomePage = () => {
       ) : (
         <React.Fragment>
           <div className="icon"></div>
-          <h1>iWeather</h1>
+          <img src={logo} alt="logo" />
 
           {loadingLocation && <p>Location Loading...</p>}
           {weatherData && (
@@ -99,7 +100,9 @@ const HomePage = () => {
               </p>
             </div>
           )}
-          <h2>Welcome to TypeWeather</h2>
+          <h1>
+            Welcome to <span>TypeWeather</span>
+          </h1>
           <p>Choose a location to see the weather forecast</p>
           <input
             type="text"

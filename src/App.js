@@ -5,7 +5,7 @@ import HomePage from "./components/HomePage";
 const App = () => {
   return (
     <WeatherProvider>
-      <HomePage />
+      <HomePage title="Weather App" subtitle="Check the weather in your city" />
     </WeatherProvider>
   );
 };

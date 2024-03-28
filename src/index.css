@@ -1,10 +1,33 @@
 body {
-  background-color: dimgray;
+  background: url("./assets/background.png");
+  background-size: cover;
   text-align: center;
-  padding: 2em;
+  padding: 1em;
+  font-family: "Nunito", sans-serif;
 }
+
 h1 {
   text-align: center;
-  font-family: "Kavoon", sans-serif;
-  font-size: 2.5em;
+  font-size: 20px;
+}
+
+h1,
+p,
+h3 {
+  color: #fff;
+}
+h1 span {
+  color: #8fb2f5;
+}
+
+p {
+  font-size: 14px;
+}
+
+input {
+  padding: 20px;
+  width: 271px;
+  border-radius: 5px;
+  border: none;
+  background-color: #1e1e29;
 }
