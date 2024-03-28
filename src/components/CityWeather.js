@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useWeather } from "./WeatherContext";
 
 const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
+  const { getWeatherAnimation } = useWeather();
+
   const [currentWeather, setCurrentWeather] = useState(null);
   const [forecastWeather, setForecastWeather] = useState(null);
   const [error, setError] = useState(null);
@@ -31,7 +34,6 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
     const savedLocations =
       JSON.parse(localStorage.getItem("savedLocations")) || [];
 
-    // Check if the selected location is already in the saved locations
     const isAlreadySaved = savedLocations.some(
       (location) => location.split(",")[0] === cityName
     );
@@ -67,6 +69,7 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
         <h3>Current Weather</h3>
         <p>Temperature: {currentWeather.main.temp} °C</p>
         <p>Description: {currentWeather.weather[0].description}</p>
+        {getWeatherAnimation(currentWeather.weather[0].description)}
       </div>
       <div>
         <h3>5-Day Forecast</h3>
@@ -75,6 +78,7 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
             <p>Date: {forecast.dt_txt}</p>
             <p>Temperature: {forecast.main.temp} °C</p>
             <p>Description: {forecast.weather[0].description}</p>
+            {getWeatherAnimation(forecast.weather[0].description)}
           </div>
         ))}
       </div>

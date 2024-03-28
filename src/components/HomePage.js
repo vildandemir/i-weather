@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
+import { WeatherSvg } from "weather-icons-animated";
 
 const HomePage = () => {
   const {
@@ -83,6 +84,7 @@ const HomePage = () => {
         <React.Fragment>
           <div className="icon"></div>
           <h1>iWeather</h1>
+
           {loadingLocation && <p>Location Loading...</p>}
           {weatherData && (
             <div>
@@ -90,7 +92,7 @@ const HomePage = () => {
                 {weatherData.name}, {weatherData.sys.country}
               </h3>
               <p>
-                Temperature: {weatherData.main.temp} °C,{" "}
+                {parseInt(weatherData.main.temp)} °C{" "}
                 {weatherData.weather[0].description}
               </p>
             </div>
@@ -113,7 +115,7 @@ const HomePage = () => {
                     onClick={() => handleLocationClick(city)}
                     style={{ cursor: "pointer" }}
                   >
-                    {cityName}, {countryCode} - {parseInt(temperature)}°C{" "}
+                    {cityName}, {countryCode} {parseInt(temperature)}°C{" "}
                     {description}
                   </span>{" "}
                   <button onClick={() => removeCity(city)}>❌</button>
