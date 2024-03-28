@@ -14,7 +14,7 @@ const HomePage = () => {
     const savedCitiesFromLocalStorage =
       JSON.parse(localStorage.getItem("savedLocations")) || [];
     setSavedCities(savedCitiesFromLocalStorage);
-  }, [selectedLocation]); // added selectedLocation to the dependency array
+  }, [selectedLocation]);
 
   const handleLocationClick = async (location) => {
     try {
@@ -28,7 +28,7 @@ const HomePage = () => {
     setSelectedLocation(null);
     setSearchQuery("");
     setSearchResults([]);
-    setSavedCities(JSON.parse(localStorage.getItem("savedLocations")) || []); // Get again cities from local storage
+    setSavedCities(JSON.parse(localStorage.getItem("savedLocations")) || []);
   };
 
   const handleInputChange = async (e) => {
@@ -54,6 +54,12 @@ const HomePage = () => {
   const isCityNameValid = (name) => {
     const words = name.split(" ");
     return words.every((word) => /^[A-ZİŞĞÜÇÖ][a-zışğüçö]+$/.test(word));
+  };
+
+  const removeCity = (city) => {
+    const updatedCities = savedCities.filter((c) => c !== city);
+    setSavedCities(updatedCities);
+    localStorage.setItem("savedLocations", JSON.stringify(updatedCities));
   };
 
   return (
@@ -82,9 +88,15 @@ const HomePage = () => {
               const [cityName, countryCode, temperature, description] =
                 city.split(",");
               return (
-                <li key={city} onClick={() => handleLocationClick(city)}>
-                  {cityName}, {countryCode} - {parseInt(temperature)}°C{" "}
-                  {description}
+                <li key={city}>
+                  <span
+                    onClick={() => handleLocationClick(city)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {cityName}, {countryCode} - {parseInt(temperature)}°C{" "}
+                    {description}
+                  </span>{" "}
+                  <button onClick={() => removeCity(city)}>❌</button>
                 </li>
               );
             })}
