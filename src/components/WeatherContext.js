@@ -55,6 +55,8 @@ export const WeatherProvider = ({ children }) => {
       lightning: "lightning",
       windy: "windy",
       hail: "hail",
+      night: "clear-night",
+      pouring: "pouring",
     };
 
     const lowercaseDescription = weatherDescription.toLowerCase();
@@ -65,7 +67,7 @@ export const WeatherProvider = ({ children }) => {
     return (
       <WeatherSvg
         state={animations[animationState]}
-        style={{ maxWidth: "50px" }}
+        style={{ maxWidth: "40px", width: "100%", height: "auto" }}
       />
     );
   };

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
@@ -28,6 +28,8 @@ const HomePage = () => {
 
   const { getWeatherAnimation } = useWeather();
 
+  const [showSavedCities, setShowSavedCities] = useState(true);
+
   useEffect(() => {
     const savedCitiesFromLocalStorage =
       JSON.parse(localStorage.getItem("savedLocations")) || [];
@@ -56,6 +58,7 @@ const HomePage = () => {
 
   const handleInputChange = async (e) => {
     setSearchQuery(e.target.value);
+    setShowSavedCities(e.target.value === ""); // Input boş ise, kaydedilmiş şehirleri göster
     if (e.target.value.length >= 3) {
       try {
         const response = await axios.get(
@@ -89,13 +92,14 @@ const HomePage = () => {
 
           {loadingLocation && <p>Location Loading...</p>}
           {weatherData && (
-            <div>
+            <div className="currentLocation">
               <h3>
                 {weatherData.name}, {weatherData.sys.country}
               </h3>
               <p>
-                {parseInt(weatherData.main.temp)} °C{" "}
-                {/* {weatherData.weather[0].description} */}
+                {parseInt(weatherData.main.temp)} °C <br />
+                {weatherData.weather[0].description}
+                <br />
                 {getWeatherAnimation(weatherData.weather[0].description)}
               </p>
             </div>
@@ -106,31 +110,46 @@ const HomePage = () => {
           <p>Choose a location to see the weather forecast</p>
           <input
             type="text"
-            placeholder="Search location..."
+            placeholder="Search location"
             value={searchQuery}
             onChange={handleInputChange}
           />
-          <ul>
-            {savedCities.map((city) => {
-              const [cityName, countryCode, temperature, description] =
-                city.split(",");
-              return (
-                <li key={city}>
-                  <span
-                    onClick={() => handleLocationClick(city)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {cityName}, {countryCode} {parseInt(temperature)}°C{" "}
-                    {getWeatherAnimation(description)}
-                  </span>{" "}
-                  <button onClick={() => removeCity(city)}>❌</button>
-                </li>
-              );
-            })}
-          </ul>
-          <ul style={{ zIndex: searchResults.length > 0 ? -1 : 1 }}>
+          {error && <p>{error}</p>}
+          {!isCityNameValid(searchQuery) &&
+            searchQuery.length > 0 &&
+            !searchResults.length && <p>Please enter a valid city name.</p>}
+          {(showSavedCities || searchQuery === "") && ( // Show saved cities if showSavedCities is true or input is empty
+            <ul className="savedCitiesList">
+              {savedCities.map((city) => {
+                const [cityName, countryCode, temperature, description] =
+                  city.split(",");
+                return (
+                  <li className="savedCity" key={city}>
+                    <span
+                      onClick={() => handleLocationClick(city)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {cityName}, {countryCode}
+                      <br />
+                      <span className="desc">{description}</span>
+                    </span>{" "}
+                    <span className="temperature">
+                      {parseInt(temperature)}°C{" "}
+                      {getWeatherAnimation(description)}
+                    </span>
+                    <button onClick={() => removeCity(city)}>
+                      {" "}
+                      <i className="fas fa-times fa-lg"></i>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <ul className="searchResultList">
             {searchResults.map((result) => (
               <li
+                className="searchResult"
                 key={result.id}
                 onClick={() =>
                   handleLocationClick(`${result.name},${result.sys.country}`)
@@ -142,10 +161,6 @@ const HomePage = () => {
           </ul>
         </React.Fragment>
       )}
-      {error && <p>{error}</p>}
-      {!isCityNameValid(searchQuery) &&
-        searchQuery.length > 0 &&
-        !searchResults.length && <p>Please enter a valid city name.</p>}
     </div>
   );
 };
