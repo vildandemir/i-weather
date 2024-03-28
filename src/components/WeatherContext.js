@@ -27,6 +27,7 @@ export const WeatherProvider = ({ children }) => {
       setLoadingLocation(false);
     }
   };
+
   const fetchWeatherData = async (cityName) => {
     // Implement the weather data fetching logic here
   };
@@ -41,30 +42,32 @@ export const WeatherProvider = ({ children }) => {
     setSavedCities(updatedCities);
     localStorage.setItem("savedLocations", JSON.stringify(updatedCities));
   };
-  const getWeatherAnimation = (weatherDescription) => {
-    const lowercaseDescription = weatherDescription.toLowerCase();
 
-    if (lowercaseDescription.includes("cloud")) {
-      return <WeatherSvg state="cloudy" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("rain")) {
-      return <WeatherSvg state="rainy" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("clear")) {
-      return <WeatherSvg state="sunny" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("snow")) {
-      return <WeatherSvg state="snowy" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("thunderstorm")) {
-      return <WeatherSvg state="thunderstorm" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("mist")) {
-      return <WeatherSvg state="fog" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("fog")) {
-      return <WeatherSvg state="fog" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("lightning")) {
-      return <WeatherSvg state="lightning" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("windy")) {
-      return <WeatherSvg state="windy" style={{ maxWidth: "50px" }} />;
-    } else if (lowercaseDescription.includes("hail")) {
-      return <WeatherSvg state="hail" style={{ maxWidth: "50px" }} />;
-    }
+  const getWeatherAnimation = (weatherDescription) => {
+    const animations = {
+      cloud: "cloudy",
+      rain: "rainy",
+      clear: "sunny",
+      snow: "snowy",
+      thunderstorm: "thunderstorm",
+      mist: "fog",
+      fog: "fog",
+      lightning: "lightning",
+      windy: "windy",
+      hail: "hail",
+    };
+
+    const lowercaseDescription = weatherDescription.toLowerCase();
+    const animationState = Object.keys(animations).find((key) =>
+      lowercaseDescription.includes(key)
+    );
+
+    return (
+      <WeatherSvg
+        state={animations[animationState]}
+        style={{ maxWidth: "50px" }}
+      />
+    );
   };
 
   return (
