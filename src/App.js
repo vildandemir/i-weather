@@ -1,13 +1,15 @@
 import React from "react";
+import { WeatherProvider } from "./components/WeatherContext";
 import HomePage from "./components/HomePage";
-import "./App.css";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <HomePage />
-    </div>
+    <WeatherProvider>
+      <div className="App">
+        <HomePage />
+      </div>
+    </WeatherProvider>
   );
-}
+};
 
 export default App;

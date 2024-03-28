@@ -1,23 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
 
 const HomePage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [weatherData, setWeatherData] = useState(null);
-  const [error, setError] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [savedCities, setSavedCities] = useState([]);
-  const [defaultLocation, setDefaultLocation] = useState(null);
-  const [loadingLocation, setLoadingLocation] = useState(true);
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    setSearchResults,
+    weatherData,
+    setWeatherData,
+    error,
+    setError,
+    selectedLocation,
+    setSelectedLocation,
+    savedCities,
+    setSavedCities,
+    loadingLocation,
+    setLoadingLocation,
+    fetchWeatherData,
+    isCityNameValid,
+    removeCity,
+    fetchWeatherDataByCoordinates,
+  } = useWeather();
 
   useEffect(() => {
     const savedCitiesFromLocalStorage =
       JSON.parse(localStorage.getItem("savedLocations")) || [];
     setSavedCities(savedCitiesFromLocalStorage);
 
-    // Geolocation support
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
@@ -28,25 +40,8 @@ const HomePage = () => {
     }
   }, []);
 
-  const fetchWeatherDataByCoordinates = async (latitude, longitude) => {
-    try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
-      );
-      setDefaultLocation(response.data);
-    } catch (error) {
-      console.error("An error occurred while fetching weather data:", error);
-    } finally {
-      setLoadingLocation(false);
-    }
-  };
-
   const handleLocationClick = async (location) => {
-    try {
-      setSelectedLocation(location);
-    } catch (error) {
-      console.error("An error occurred while fetching weather data:", error);
-    }
+    setSelectedLocation(location);
   };
 
   const handleBackButtonClick = () => {
@@ -76,17 +71,6 @@ const HomePage = () => {
     }
   };
 
-  const isCityNameValid = (name) => {
-    const words = name.split(" ");
-    return words.every((word) => /^[A-ZİŞĞÜÇÖ][a-zışğüçö]+$/.test(word));
-  };
-
-  const removeCity = (city) => {
-    const updatedCities = savedCities.filter((c) => c !== city);
-    setSavedCities(updatedCities);
-    localStorage.setItem("savedLocations", JSON.stringify(updatedCities));
-  };
-
   return (
     <div className="HomePage">
       {selectedLocation ? (
@@ -99,16 +83,15 @@ const HomePage = () => {
         <React.Fragment>
           <div className="icon"></div>
           <h1>iWeather</h1>
-          {loadingLocation && "Location Loading..."}
-
-          {defaultLocation && (
+          {loadingLocation && <p>Location Loading...</p>}
+          {weatherData && (
             <div>
               <h3>
-                {defaultLocation.name}, {defaultLocation.sys.country}
+                {weatherData.name}, {weatherData.sys.country}
               </h3>
               <p>
-                {defaultLocation.main.temp} °C,{" "}
-                {defaultLocation.weather[0].description}
+                Temperature: {weatherData.main.temp} °C,{" "}
+                {weatherData.weather[0].description}
               </p>
             </div>
           )}
@@ -120,7 +103,6 @@ const HomePage = () => {
             value={searchQuery}
             onChange={handleInputChange}
           />
-
           <ul>
             {savedCities.map((city) => {
               const [cityName, countryCode, temperature, description] =
@@ -139,7 +121,6 @@ const HomePage = () => {
               );
             })}
           </ul>
-
           <ul style={{ zIndex: searchResults.length > 0 ? -1 : 1 }}>
             {searchResults.map((result) => (
               <li
@@ -153,15 +134,6 @@ const HomePage = () => {
             ))}
           </ul>
         </React.Fragment>
-      )}
-      {weatherData && (
-        <div>
-          <h3>
-            {weatherData.name}, {weatherData.sys.country}
-          </h3>
-          <p>Temperature: {weatherData.main.temp} °C</p>
-          <p>Description: {weatherData.weather[0].description}</p>
-        </div>
       )}
       {error && <p>{error}</p>}
       {!isCityNameValid(searchQuery) &&
