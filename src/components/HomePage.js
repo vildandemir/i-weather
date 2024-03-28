@@ -9,12 +9,37 @@ const HomePage = () => {
   const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [savedCities, setSavedCities] = useState([]);
+  const [defaultLocation, setDefaultLocation] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(true);
 
   useEffect(() => {
     const savedCitiesFromLocalStorage =
       JSON.parse(localStorage.getItem("savedLocations")) || [];
     setSavedCities(savedCitiesFromLocalStorage);
-  }, [selectedLocation]);
+
+    // Geolocation support
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        fetchWeatherDataByCoordinates(latitude, longitude);
+      });
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
+  const fetchWeatherDataByCoordinates = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
+      );
+      setDefaultLocation(response.data);
+    } catch (error) {
+      console.error("An error occurred while fetching weather data:", error);
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
 
   const handleLocationClick = async (location) => {
     try {
@@ -74,6 +99,19 @@ const HomePage = () => {
         <React.Fragment>
           <div className="icon"></div>
           <h1>iWeather</h1>
+          {loadingLocation && "Location Loading..."}
+
+          {defaultLocation && (
+            <div>
+              <h3>
+                {defaultLocation.name}, {defaultLocation.sys.country}
+              </h3>
+              <p>
+                {defaultLocation.main.temp} °C,{" "}
+                {defaultLocation.weather[0].description}
+              </p>
+            </div>
+          )}
           <h2>Welcome to TypeWeather</h2>
           <p>Choose a location to see the weather forecast</p>
           <input
