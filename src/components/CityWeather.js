@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useWeather } from "./WeatherContext";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Label,
+} from "recharts";
 
 const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
   const { getWeatherAnimation } = useWeather();
@@ -66,18 +76,13 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
     return acc;
   }, {});
 
-  // Calculate average temperature and weather for each day
+  // Calculate average temperature for each day
   const averageDailyForecasts = Object.values(dailyForecasts).map(
     (forecasts) => {
       const avgTemperature =
         forecasts.reduce((sum, forecast) => sum + forecast.main.temp, 0) /
         forecasts.length;
-      const mainWeather = forecasts[0].weather[0].main;
-      const description = forecasts[0].weather[0].description;
-      return {
-        main: { temp: avgTemperature },
-        weather: [{ main: mainWeather, description }],
-      };
+      return parseInt(avgTemperature);
     }
   );
 
@@ -91,6 +96,12 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
     "Friday",
     "Saturday",
   ];
+
+  // Prepare data for Recharts LineChart
+  const chartData = Object.keys(dailyForecasts).map((date, index) => ({
+    day: dayNames[new Date(date).getDay()],
+    temperature: averageDailyForecasts[index],
+  }));
 
   return (
     <div>
@@ -108,17 +119,49 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
       </div>
       <div>
         <h3>5-Day Forecast</h3>
-        {averageDailyForecasts.map((forecast, index) => {
+        {averageDailyForecasts.map((temperature, index) => {
           const date = Object.keys(dailyForecasts)[index];
-          const dayName = new Date(date).getDay(); // Get day index
+          const dayName = new Date(date).getDay();
           return (
             <div key={index}>
               <p>{dayNames[dayName]}</p>
-              <p> {parseInt(forecast.main.temp)} °C</p>
-              {getWeatherAnimation(forecast.weather[0].description)}
+              <p> {parseInt(temperature)} °C</p>
+              {getWeatherAnimation(
+                forecastWeather.list[index].weather[0].description
+              )}
             </div>
           );
         })}
+      </div>
+      <div>
+        <h3>Temperature Forecast Graph</h3>
+        <LineChart
+          width={800}
+          height={400}
+          data={chartData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="day"
+            label={{ value: "Day", position: "insideBottomRight" }}
+          />
+          <YAxis
+            label={{
+              value: "Temperature (°C)",
+              angle: -90,
+              position: "insideLeft",
+            }}
+          />
+          <Tooltip />
+          <Legend align="left" verticalAlign="bottom" />
+          <Line
+            type="monotone"
+            dataKey="temperature"
+            stroke="#8884d8"
+            activeDot={{ r: 8 }}
+          />
+        </LineChart>
       </div>
     </div>
   );
