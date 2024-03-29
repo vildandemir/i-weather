@@ -9,7 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  Label,
+  ResponsiveContainer,
 } from "recharts";
 
 const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
@@ -26,6 +26,8 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
           `https://api.openweathermap.org/data/2.5/weather?q=${cityName},${countryCode}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
         );
         setCurrentWeather(currentWeatherResponse.data);
+
+        console.log("Current Weather Data:", currentWeatherResponse.data);
 
         const forecastWeatherResponse = await axios.get(
           `https://api.openweathermap.org/data/2.5/forecast?q=${cityName},${countryCode}&appid=0c19f5142c89d2eefcbf8545c9dd03d0&units=metric`
@@ -104,64 +106,93 @@ const CityWeather = ({ cityName, countryCode, onBackButtonClick }) => {
   }));
 
   return (
-    <div>
-      <div>
+    <div className="container mx-auto">
+      <div className="flex justify-between items-center">
         <button onClick={onBackButtonClick}>Back</button>
         <button onClick={handleAddButtonClick}>Add</button>
       </div>
-      <h2>
+      <h2 className="mt-4 mb-2">
         Weather in {currentWeather.name}, {currentWeather.sys.country}
       </h2>
-      <div>
-        <h3>Current Weather</h3>
-        <p> {parseInt(currentWeather.main.temp)} °C</p>
-        {getWeatherAnimation(currentWeather.weather[0].description)}
-      </div>
-      <div>
-        <h3>5-Day Forecast</h3>
-        {averageDailyForecasts.map((temperature, index) => {
-          const date = Object.keys(dailyForecasts)[index];
-          const dayName = new Date(date).getDay();
-          return (
-            <div key={index}>
-              <p>{dayNames[dayName]}</p>
-              <p> {parseInt(temperature)} °C</p>
-              {getWeatherAnimation(
-                forecastWeather.list[index].weather[0].description
-              )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3>Current Weather</h3>
+          <p>{currentWeather.weather[0].description}</p>
+          <p> {parseInt(currentWeather.main.temp)} °C</p>
+          <p>
+            <i
+              className="fa-solid fa-temperature-three-quarters"
+              style={{ color: "#3b3b54" }}
+            ></i>{" "}
+            Thermal sensation: {currentWeather.main.feels_like}{" "}
+          </p>
+          <p>
+            <i
+              className="fa-solid fa-compress"
+              style={{ color: "#3b3b54" }}
+            ></i>
+            Pressure: {currentWeather.main.pressure}{" "}
+          </p>
+          <p>
+            <i className="fa-solid fa-wind" style={{ color: "#3b3b54" }}></i>{" "}
+            Wind speed: {currentWeather.wind.speed} k/h{" "}
+          </p>
+          <p>
+            <i className="fa-solid fa-droplet" style={{ color: "#3b3b54" }}></i>
+            Air humidity: % {currentWeather.main.humidity}
+          </p>
+          {getWeatherAnimation(currentWeather.weather[0].description)}
+        </div>
+        <div>
+          <div>
+            {/* <h3>5-Day Forecast</h3> */}
+            <div className="flex flex-wrap">
+              {averageDailyForecasts.slice(0, 5).map((temperature, index) => {
+                const date = Object.keys(dailyForecasts)[index];
+                const dayName = new Date(date).getDay();
+                return (
+                  <div key={index} className="w-full md:w-1/5">
+                    <p>{dayNames[dayName]}</p>
+                    <p> {parseInt(temperature)} °C</p>
+                    {getWeatherAnimation(
+                      forecastWeather.list[index].weather[0].description
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
-      <div>
-        <h3>Temperature Forecast Graph</h3>
-        <LineChart
-          width={800}
-          height={400}
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="day"
-            label={{ value: "Day", position: "insideBottomRight" }}
-          />
-          <YAxis
-            label={{
-              value: "Temperature (°C)",
-              angle: -90,
-              position: "insideLeft",
-            }}
-          />
-          <Tooltip />
-          <Legend align="left" verticalAlign="bottom" />
-          <Line
-            type="monotone"
-            dataKey="temperature"
-            stroke="#8884d8"
-            activeDot={{ r: 8 }}
-          />
-        </LineChart>
+          </div>
+          <div>
+            <h3>Temperature Forecast Graph</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="day"
+                  label={{ value: "Day", position: "insideBottomRight" }}
+                />
+                <YAxis
+                  label={{
+                    value: "Temperature (°C)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
+                <Tooltip />
+                <Legend align="left" verticalAlign="bottom" />
+                <Line
+                  type="monotone"
+                  dataKey="temperature"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );
