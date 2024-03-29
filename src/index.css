@@ -46,10 +46,10 @@ input {
   border-radius: 8px;
 }
 
-.currentLocation {
-  position: absolute;
-  right: 1em;
-  top: 0;
+@media screen and (max-width: 768px) {
+  .currentLocation {
+    font-size: 14px;
+  }
 }
 
 button {
