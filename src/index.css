@@ -52,6 +52,11 @@ input {
   }
 }
 
+.weather-animation svg {
+  width: 200px;
+  height: 100px;
+}
+
 button {
   background-color: #8fb3f500;
   color: #424040;

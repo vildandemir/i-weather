@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
-import logo from "../assets/Logo.png";
 import Header from "./Header";
 
 const HomePage = () => {
