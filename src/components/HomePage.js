@@ -3,6 +3,7 @@ import { useWeather } from "./WeatherContext";
 import axios from "axios";
 import CityWeather from "./CityWeather";
 import Header from "./Header";
+import loadingGif from "../assets/loading.gif";
 
 const HomePage = () => {
   const {
@@ -29,6 +30,7 @@ const HomePage = () => {
   const { getWeatherAnimation } = useWeather();
 
   const [showSavedCities, setShowSavedCities] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedCitiesFromLocalStorage =
@@ -59,6 +61,10 @@ const HomePage = () => {
   const handleInputChange = async (e) => {
     setSearchQuery(e.target.value);
     setShowSavedCities(e.target.value === ""); // Input boş ise, kaydedilmiş şehirleri göster
+
+    // Input boş değilse ve sonuçlar gelmediyse loading true
+    setLoading(e.target.value !== "" && searchResults.length === 0);
+
     if (e.target.value.length >= 3) {
       try {
         const response = await axios.get(
@@ -71,9 +77,12 @@ const HomePage = () => {
           "An error occurred while fetching search results:",
           error
         );
+      } finally {
+        setLoading(false); // İstek tamamlandığında loading false
       }
     } else {
       setSearchResults([]);
+      setLoading(false); // İstek tamamlandığında loading false
     }
   };
 
@@ -92,12 +101,24 @@ const HomePage = () => {
             Welcome to <span>TypeWeather</span>
           </h1>
           <p>Choose a location to see the weather forecast</p>
-          <input
-            type="text"
-            placeholder="Search location"
-            value={searchQuery}
-            onChange={handleInputChange}
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search location"
+              value={searchQuery}
+              onChange={handleInputChange}
+              className="search-input"
+            />
+            {loading && (
+              <div
+                style={{ marginLeft: "180px" }}
+                className="absolute inset-0  flex items-center justify-center pointer-events-none"
+              >
+                <img src={loadingGif} alt="loading" className="h-5 w-5" />
+              </div>
+            )}
+          </div>
+
           {error && <p>{error}</p>}
           {!isCityNameValid(searchQuery) &&
             searchQuery.length > 0 &&

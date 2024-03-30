@@ -67,7 +67,7 @@ export const WeatherProvider = ({ children }) => {
     return (
       <WeatherSvg
         state={animations[animationState]}
-        style={{ maxWidth: "50px", width: "100%", height: "auto" }}
+        style={{ width: "100%", height: "auto" }}
       />
     );
   };

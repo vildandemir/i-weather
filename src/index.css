@@ -52,9 +52,34 @@ input {
   }
 }
 
-.weather-animation svg {
-  width: 200px;
-  height: 100px;
+@keyframes slideLeft {
+  from {
+    right: -100%;
+    opacity: 0;
+  }
+  to {
+    right: 0;
+    opacity: 1;
+  }
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.5s ease-in-out;
+}
+
+.search-input {
+  padding-right: 1.5rem;
+}
+
+.temperature svg {
+  max-width: 50px;
+  margin: 0 auto;
+}
+
+.weather-animation,
+.bigAnimation svg {
+  max-width: 100px;
+  margin: -10px;
 }
 
 button {
